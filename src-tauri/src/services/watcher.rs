@@ -1,4 +1,5 @@
-use crate::models::Rule;
+use crate::models::{ActivityEntry, Rule};
+use crate::services::activity::log_activity;
 use crate::services::file_manager::move_matching_file;
 use notify::{recommended_watcher, Event, EventKind, RecursiveMode, Watcher};
 use std::collections::HashMap;
@@ -22,10 +23,44 @@ fn handle_event(event: Event, rule: &Rule) {
     match event.kind {
         EventKind::Create(_) | EventKind::Modify(_) => {
             let destination = Path::new(&rule.destination);
+
             for path in event.paths {
-                move_matching_file(&path, destination, &rule.extensions);
+                if let Some((source, destination)) =
+                    move_matching_file(
+                        &path,
+                        destination,
+                        &rule.extensions,
+                    )
+                {
+                    let timestamp = std::time::SystemTime::now()
+    .duration_since(std::time::UNIX_EPOCH)
+    .map(|duration| duration.as_millis().to_string())
+    .unwrap_or_default();
+
+                    let file_name = source
+                        .file_name()
+                        .and_then(|name| name.to_str())
+                        .unwrap_or("Unknown file")
+                        .to_string();
+
+                    let activity = ActivityEntry {
+                        timestamp,
+                        rule_id: rule.id.clone(),
+                        rule_name: rule.rule_name.clone(),
+                        file_name,
+                        source: source.to_string_lossy().to_string(),
+                        destination: destination.to_string_lossy().to_string(),
+                    };
+
+                    if let Err(error) = log_activity(activity) {
+                        eprintln!(
+                            "Failed to log activity: {error}"
+                        );
+                    }
+                }
             }
         }
+
         _ => {}
     }
 }
@@ -41,9 +76,41 @@ fn process_existing_files(rule: &Rule) -> Result<(), String> {
         let path = entry.path();
 
         // Advanced Sorting only works on files directly inside the watch folder.
-        if path.is_file() {
-            move_matching_file(&path, destination, &rule.extensions);
+       if path.is_file() {
+    if let Some((source, destination)) =
+        move_matching_file(
+            &path,
+            destination,
+            &rule.extensions,
+        )
+    {
+       let timestamp = std::time::SystemTime::now()
+    .duration_since(std::time::UNIX_EPOCH)
+    .map(|duration| duration.as_millis().to_string())
+    .unwrap_or_default();
+
+        let file_name = source
+            .file_name()
+            .and_then(|name| name.to_str())
+            .unwrap_or("Unknown file")
+            .to_string();
+
+        let activity = ActivityEntry {
+            timestamp,
+            rule_id: rule.id.clone(),
+            rule_name: rule.rule_name.clone(),
+            file_name,
+            source: source.to_string_lossy().to_string(),
+            destination: destination.to_string_lossy().to_string(),
+        };
+
+        if let Err(error) = log_activity(activity) {
+            eprintln!(
+                "Failed to log activity: {error}"
+            );
         }
+    }
+}
     }
 
     Ok(())

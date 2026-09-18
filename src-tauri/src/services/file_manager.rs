@@ -10,8 +10,12 @@ pub fn extension_matches(path: &Path, extensions: &[String]) -> bool {
     extensions.iter().any(|item| item.to_lowercase() == ext)
 }
 
-pub fn unique_destination(folder: &Path, file_name: &std::ffi::OsStr) -> PathBuf {
+pub fn unique_destination(
+    folder: &Path,
+    file_name: &std::ffi::OsStr,
+) -> PathBuf {
     let mut destination = folder.join(file_name);
+
     if !destination.exists() {
         return destination;
     }
@@ -20,6 +24,7 @@ pub fn unique_destination(folder: &Path, file_name: &std::ffi::OsStr) -> PathBuf
         .file_stem()
         .and_then(|s| s.to_str())
         .unwrap_or("file");
+
     let extension = Path::new(file_name)
         .extension()
         .and_then(|s| s.to_str())
@@ -27,30 +32,50 @@ pub fn unique_destination(folder: &Path, file_name: &std::ffi::OsStr) -> PathBuf
         .unwrap_or_default();
 
     let mut counter = 1;
+
     loop {
-        destination = folder.join(format!("{stem}_{counter}{extension}"));
+        destination =
+            folder.join(format!("{stem}_{counter}{extension}"));
+
         if !destination.exists() {
             return destination;
         }
+
         counter += 1;
     }
 }
 
-pub fn move_matching_file(path: &Path, destination_folder: &Path, extensions: &[String]) {
+pub fn move_matching_file(
+    path: &Path,
+    destination_folder: &Path,
+    extensions: &[String],
+) -> Option<(PathBuf, PathBuf)> {
     if !path.is_file() || !extension_matches(path, extensions) {
-        return;
+        return None;
     }
 
     // A file may still be locked while an application is finishing a copy.
     for _ in 0..5 {
         if let Some(name) = path.file_name() {
-            let destination = unique_destination(destination_folder, name);
+            let destination =
+                unique_destination(destination_folder, name);
+
             match fs::rename(path, &destination) {
-                Ok(_) => return,
-                Err(_) => thread::sleep(Duration::from_millis(300)),
+                Ok(_) => {
+                    return Some((
+                        path.to_path_buf(),
+                        destination,
+                    ));
+                }
+
+                Err(_) => {
+                    thread::sleep(Duration::from_millis(300));
+                }
             }
         } else {
-            return;
+            return None;
         }
     }
+
+    None
 }

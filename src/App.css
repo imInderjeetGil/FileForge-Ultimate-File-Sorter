@@ -431,3 +431,305 @@ button {
 .extension-count {
   color: #777;
 }
+
+/* =========================
+   Home Dashboard
+   ========================= */
+
+.home-dashboard {
+  padding-bottom: 30px;
+}
+
+.dashboard-section {
+  margin-top: 20px;
+}
+
+.section-title {
+  margin-bottom: 8px;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  color: #333;
+}
+
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.overview-card {
+  min-height: 72px;
+
+  padding: 10px 12px;
+
+  border: 1px solid #c8c8c8;
+  background: #fafafa;
+}
+
+.overview-label {
+  margin-bottom: 5px;
+
+  color: #666;
+  font-size: 12px;
+}
+
+.overview-value {
+  font-size: 20px;
+  font-weight: 600;
+  color: #222;
+}
+
+.overview-last {
+  font-size: 12px;
+  font-weight: 500;
+  padding-top: 4px;
+}
+
+
+/* Folder mappings */
+
+.mapping-list {
+  border: 1px solid #c8c8c8;
+  background: #fafafa;
+}
+
+.mapping-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding: 11px 12px;
+
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.mapping-row:last-child {
+  border-bottom: none;
+}
+
+.mapping-main {
+  min-width: 0;
+}
+
+.mapping-name {
+  margin-bottom: 5px;
+
+  font-weight: 600;
+  color: #222;
+}
+
+.mapping-line {
+  margin-top: 3px;
+
+  color: #666;
+  font-size: 12px;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mapping-line strong {
+  color: #444;
+}
+
+.rule-status {
+  flex-shrink: 0;
+
+  padding: 4px 8px;
+
+  border: 1px solid #c8c8c8;
+
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.rule-status.running {
+  background: #eef6ee;
+  color: #276327;
+}
+
+.rule-status.paused {
+  background: #f3f3f3;
+  color: #666;
+}
+
+
+/* Recent activity */
+
+.activity-table {
+  border: 1px solid #c8c8c8;
+  background: #fff;
+
+  overflow-x: auto;
+}
+
+.activity-header,
+.activity-row {
+  display: grid;
+  grid-template-columns: 150px 1.2fr 150px 2fr;
+  gap: 10px;
+
+  align-items: center;
+
+  min-width: 700px;
+}
+
+.activity-header {
+  padding: 8px 10px;
+
+  background: #eeeeee;
+  border-bottom: 1px solid #c8c8c8;
+
+  color: #555;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.activity-row {
+  padding: 8px 10px;
+
+  border-bottom: 1px solid #eeeeee;
+
+  font-size: 12px;
+}
+
+.activity-row:last-child {
+  border-bottom: none;
+}
+
+.activity-row > span {
+  min-width: 0;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.activity-move {
+  color: #666;
+}
+
+.dashboard-empty {
+  padding: 14px;
+
+  border: 1px solid #c8c8c8;
+  background: #fafafa;
+
+  color: #666;
+  font-size: 13px;
+}
+.dropdown-menu {
+  position: absolute;
+
+  top: 29px;
+  left: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  width: 240px;
+
+  padding: 3px 0;
+
+  background: #ffffff;
+
+  border: 1px solid #a9a9a9;
+
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.18);
+
+  z-index: 1000;
+}
+
+.dropdown-menu button {
+  width: 100%;
+  min-height: 29px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  flex-shrink: 0;
+
+  padding: 5px 12px;
+
+  border: none;
+
+  background: transparent;
+
+  color: #222;
+
+  font-family: inherit;
+  font-size: 13px;
+
+  text-align: left;
+
+  cursor: pointer;
+}
+
+.dropdown-menu button:not(:disabled):hover {
+  background: #e8f1fb;
+}
+
+.dropdown-menu button:disabled {
+  color: #999;
+  cursor: default;
+}
+.menu-wrapper {
+  position: relative;
+  display: block;
+}
+
+.security-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.15);
+  z-index: 3000;
+}
+
+.security-dialog {
+  width: 430px;
+  padding: 20px;
+  background: #f5f5f5;
+  border: 1px solid #9d9d9d;
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.25);
+}
+
+.security-dialog h2 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  color: #222;
+}
+
+.security-dialog p {
+  margin-top: 14px;
+  color: #444;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.security-path {
+  margin-top: 10px;
+  padding: 10px;
+  background: #eeeeee;
+  border: 1px solid #d0d0d0;
+  color: #444;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.security-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 18px;
+  padding-top: 12px;
+  border-top: 1px solid #d0d0d0;
+}

@@ -61,3 +61,7 @@ export async function deleteRule(ruleId) {
     ruleId,
   });
 }
+
+export async function getActivity() {
+  return invoke("get_activity");
+}

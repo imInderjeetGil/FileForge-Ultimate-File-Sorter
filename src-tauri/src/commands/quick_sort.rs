@@ -1,4 +1,5 @@
-use crate::models::{FileMove, SortHistory};
+use crate::models::{ActivityEntry, FileMove, SortHistory};
+use crate::services::activity::log_activity;
 use crate::services::history::{history_path, save_history};
 use std::path::PathBuf;
 
@@ -86,11 +87,38 @@ pub fn quick_sort() -> Result<SortResult, String> {
             counter += 1;
         }
 
-        std::fs::rename(&file, &destination).map_err(|e| e.to_string())?;
-        history.moves.push(FileMove {
-            from: file.to_string_lossy().to_string(),
-            to: destination.to_string_lossy().to_string(),
-        });
+       std::fs::rename(&file, &destination)
+    .map_err(|e| e.to_string())?;
+
+history.moves.push(FileMove {
+    from: file.to_string_lossy().to_string(),
+    to: destination.to_string_lossy().to_string(),
+});
+
+let timestamp = std::time::SystemTime::now()
+    .duration_since(std::time::UNIX_EPOCH)
+    .map_err(|e| e.to_string())?
+    .as_millis()
+    .to_string();
+
+let file_name = file
+    .file_name()
+    .and_then(|name| name.to_str())
+    .unwrap_or("Unknown file")
+    .to_string();
+
+let activity = ActivityEntry {
+    timestamp,
+    rule_id: "quick-sort".to_string(),
+    rule_name: "Quick Sort".to_string(),
+    file_name,
+    source: file.to_string_lossy().to_string(),
+    destination: destination.to_string_lossy().to_string(),
+};
+
+if let Err(error) = log_activity(activity) {
+    eprintln!("Failed to log Quick Sort activity: {error}");
+}
     }
 
     save_history(&history)?;
