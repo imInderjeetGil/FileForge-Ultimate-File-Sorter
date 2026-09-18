@@ -1,0 +1,105 @@
+.rules-list {
+  padding: 0;
+}
+
+.rule-row {
+  min-height: 68px;
+  padding: 12px 14px;
+  border-bottom: 1px solid #e2e2e2;
+  cursor: default;
+  user-select: none;
+}
+
+.rule-row:last-child {
+  border-bottom: 0;
+}
+
+.rule-row:hover {
+  background: #f5f7fa;
+}
+
+.rule-info {
+  min-width: 0;
+}
+
+.rule-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.rule-title-row strong {
+  font-size: 13px;
+  color: #202020;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rule-status {
+  flex: 0 0 auto;
+  font-size: 11px;
+  font-weight: 600;
+  padding-left: 8px;
+  border-left: 1px solid #d4d4d4;
+}
+
+.rule-status.running {
+  color: #2b6e2b;
+}
+
+.rule-status.paused {
+  color: #777;
+}
+
+.rule-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 16px;
+  margin-top: 6px;
+  color: #666;
+  font-size: 11px;
+}
+
+.rule-summary span {
+  white-space: nowrap;
+}
+
+.native-context-menu {
+  position: fixed;
+  z-index: 9999;
+  width: 190px;
+  padding: 4px 0;
+  background: #ffffff;
+  border: 1px solid #bdbdbd;
+  box-shadow: 2px 2px 7px rgba(0, 0, 0, 0.18);
+}
+
+.native-context-menu button {
+  display: block;
+  width: 100%;
+  min-height: 29px;
+  padding: 4px 12px;
+  border: 0;
+  background: transparent;
+  color: #202020;
+  text-align: left;
+  font: inherit;
+  font-size: 12px;
+  cursor: default;
+}
+
+.native-context-menu button:hover {
+  background: #e5f1fb;
+}
+
+.native-context-menu .delete-context-item {
+  color: #b00020;
+}
+
+.context-separator {
+  height: 1px;
+  margin: 4px 0;
+  background: #e2e2e2;
+}
