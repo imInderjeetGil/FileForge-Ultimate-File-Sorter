@@ -1,12 +1,27 @@
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 
+
+function cleanWindowsPath(path) {
+  if (!path) return path;
+
+  if (path.startsWith("\\\\?\\")) {
+    return path.slice(4);
+  }
+
+  return path;
+}
+
 export async function scanDownloads() {
   return invoke("scan_downloads");
 }
 
-export async function quickSort() {
-  return invoke("quick_sort");
+export async function scanFolder(folder) {
+  return invoke("scan_folder", { folder });
+}
+
+export async function quickSort(folder) {
+  return invoke("quick_sort", {folder});
 }
 
 export async function undoSort() {
@@ -18,10 +33,18 @@ export async function scanFolderExtensions(folder) {
 }
 
 export async function selectFolder() {
-  return open({
+  const selected = await open({
     directory: true,
     multiple: false,
   });
+
+  if (!selected) {
+    return null;
+  }
+
+  console.log("RAW:", selected);
+  console.log("CLEAN:", cleanWindowsPath(selected));
+  return cleanWindowsPath(selected);
 }
 
 export async function getRules() {
@@ -64,4 +87,20 @@ export async function deleteRule(ruleId) {
 
 export async function getActivity() {
   return invoke("get_activity");
+}
+
+export async function getDownloadsFolder() {
+  return invoke("get_downloads_folder");
+}
+
+export async function clearActivity() {
+  return invoke("clear_activity");
+}
+
+export async function openDownloadsFolder() {
+  return invoke("open_downloads_folder");
+}
+
+export async function exitApp() {
+  return invoke("exit_app");
 }

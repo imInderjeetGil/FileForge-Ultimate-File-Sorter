@@ -733,3 +733,10 @@ button {
   padding-top: 12px;
   border-top: 1px solid #d0d0d0;
 }
+.activity-section-title { display: flex; align-items: center; justify-content: space-between; } .clear-activity-button { border: 0; background: transparent; color: #666; font-size: 11px; padding: 4px 8px; cursor: pointer; } .clear-activity-button:hover { color: #b00020; } .clear-activity-button:disabled { color: #aaa; cursor: default; }
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

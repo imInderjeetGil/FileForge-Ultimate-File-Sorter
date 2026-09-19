@@ -11,8 +11,39 @@ function ExtensionList({
     );
   }
 
+  const allSelected =
+    extensions.length > 0 &&
+    extensions.every((item) =>
+      selectedExtensions.includes(item.extension)
+    );
+
+  function toggleAll() {
+    if (allSelected) {
+      extensions.forEach((item) => {
+        if (selectedExtensions.includes(item.extension)) {
+          onToggle(item.extension);
+        }
+      });
+    } else {
+      extensions.forEach((item) => {
+        if (!selectedExtensions.includes(item.extension)) {
+          onToggle(item.extension);
+        }
+      });
+    }
+  }
+
   return (
     <div className="extension-box">
+      <label className="extension-option">
+        <input
+          type="checkbox"
+          checked={allSelected}
+          onChange={toggleAll}
+        />
+        <strong>Select All</strong>
+      </label>
+
       {extensions.map((item) => (
         <label
           key={item.extension}
@@ -25,7 +56,6 @@ function ExtensionList({
           />
 
           <span>{item.extension}</span>
-
           <span className="extension-count">
             ({item.count})
           </span>

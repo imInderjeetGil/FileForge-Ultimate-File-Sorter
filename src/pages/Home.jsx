@@ -1,26 +1,38 @@
 import { useEffect, useState } from "react";
-import { getActivity, getRules } from "../services/fileforge";
+
+import {
+  clearActivity,
+  getActivity,
+  getRules,
+} from "../services/fileforge";
 
 function Home() {
   const [rules, setRules] = useState([]);
   const [activity, setActivity] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filesOrganized, setFilesOrganized] = useState(0);
 
   async function loadDashboard() {
-    try {
-      const [rulesData, activityData] = await Promise.all([
-        getRules(),
-        getActivity(),
-      ]);
+  try {
+    const [rulesData, activityData] = await Promise.all([
+      getRules(),
+      getActivity(),
+    ]);
 
-      setRules(rulesData || []);
-      setActivity(activityData || []);
-    } catch (error) {
-      console.error("Failed to load dashboard:", error);
-    } finally {
-      setLoading(false);
+    setRules(rulesData || []);
+    setActivity(activityData || []);
+
+    if (activityData && activityData.length > 0) {
+      setFilesOrganized((current) =>
+        Math.max(current, activityData.length)
+      );
     }
+  } catch (error) {
+    console.error("Failed to load dashboard:", error);
+  } finally {
+    setLoading(false);
   }
+}
 
   useEffect(() => {
     loadDashboard();
@@ -39,8 +51,8 @@ function Home() {
 
   function formatTimestamp(timestamp) {
     if (!timestamp) return "—";
-    
-const date = new Date(Number(timestamp));
+
+    const date = new Date(Number(timestamp));
 
     if (Number.isNaN(date.getTime())) {
       return timestamp;
@@ -57,6 +69,28 @@ const date = new Date(Number(timestamp));
     }
 
     return `...${path.slice(-52)}`;
+  }
+
+  async function handleClearActivity() {
+    if (activity.length === 0) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      "Clear all Recent Activity?\n\nThis will not undo or move any files."
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await clearActivity();
+
+      setActivity([]);
+    } catch (error) {
+      console.error("Failed to clear activity:", error);
+    }
   }
 
   if (loading) {
@@ -80,7 +114,6 @@ const date = new Date(Number(timestamp));
     <div className="work-panel home-dashboard">
 
       {/* Header */}
-
       <div className="page-header">
         <div>
           <h1>FileForge</h1>
@@ -96,7 +129,6 @@ const date = new Date(Number(timestamp));
       </div>
 
       {/* Overview */}
-
       <div className="dashboard-section">
         <div className="section-title">
           Activity Overview
@@ -130,7 +162,7 @@ const date = new Date(Number(timestamp));
             </div>
 
             <div className="overview-value">
-              {activity.length}
+              {filesOrganized}
             </div>
           </div>
 
@@ -150,7 +182,6 @@ const date = new Date(Number(timestamp));
       </div>
 
       {/* Folder mappings */}
-
       <div className="dashboard-section">
         <div className="section-title">
           Folder Mappings
@@ -162,13 +193,11 @@ const date = new Date(Number(timestamp));
           </div>
         ) : (
           <div className="mapping-list">
-
             {rules.map((rule) => (
               <div
                 className="mapping-row"
                 key={rule.id}
               >
-
                 <div className="mapping-main">
 
                   <div className="mapping-name">
@@ -199,19 +228,25 @@ const date = new Date(Number(timestamp));
                 >
                   {rule.enabled ? "Running" : "Paused"}
                 </div>
-
               </div>
             ))}
-
           </div>
         )}
       </div>
 
       {/* Recent activity */}
-
       <div className="dashboard-section">
-        <div className="section-title">
-          Recent Activity
+
+        <div className="section-title activity-section-title">
+          <span>Recent Activity</span>
+
+          <button
+            className="clear-activity-button"
+            onClick={handleClearActivity}
+            disabled={activity.length === 0}
+          >
+            Clear
+          </button>
         </div>
 
         {recentActivity.length === 0 ? (
@@ -233,7 +268,6 @@ const date = new Date(Number(timestamp));
                 className="activity-row"
                 key={`${entry.timestamp}-${entry.file_name}-${index}`}
               >
-
                 <span>
                   {formatTimestamp(entry.timestamp)}
                 </span>
@@ -254,12 +288,12 @@ const date = new Date(Number(timestamp));
                   {" → "}
                   {shortPath(entry.destination)}
                 </span>
-
               </div>
             ))}
 
           </div>
         )}
+
       </div>
 
     </div>

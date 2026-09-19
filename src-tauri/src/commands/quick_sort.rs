@@ -18,6 +18,32 @@ pub fn scan_downloads() -> Result<usize, String> {
         .count())
 }
 
+#[tauri::command]
+pub fn scan_folder(folder: String) -> Result<usize, String> {
+    let path = PathBuf::from(folder);
+
+    if !path.exists() {
+        return Err("Selected folder does not exist.".to_string());
+    }
+
+    if !path.is_dir() {
+        return Err("Selected path is not a folder.".to_string());
+    }
+
+    let entries =
+        std::fs::read_dir(path).map_err(|e| e.to_string())?;
+
+    Ok(entries
+        .filter_map(|entry| entry.ok())
+        .map(|entry| entry.path())
+        .filter(|path| path.is_file())
+        .count())
+}
+
+#[tauri::command]
+pub fn get_downloads_folder() -> Result<String, String> {
+    Ok(downloads_path()?.to_string_lossy().to_string())
+}
 #[derive(serde::Serialize)]
 pub struct SortResult {
     pub total: usize,
@@ -31,8 +57,16 @@ pub struct SortResult {
 }
 
 #[tauri::command]
-pub fn quick_sort() -> Result<SortResult, String> {
-    let downloads = downloads_path()?;
+pub fn quick_sort(folder: String) -> Result<SortResult, String> {
+    let source_folder = PathBuf::from(folder);
+
+    if !source_folder.exists() {
+        return Err("Selected folder does not exist.".to_string());
+    }
+
+    if !source_folder.is_dir() {
+        return Err("Selected path is not a folder.".to_string());
+    }
     let categories = [
         ("Documents", vec![".pdf", ".doc", ".docx", ".txt", ".xlsx", ".xls", ".ppt", ".pptx"]),
         ("Images", vec![".jpg", ".jpeg", ".png", ".gif", ".webp"]),
@@ -42,7 +76,7 @@ pub fn quick_sort() -> Result<SortResult, String> {
         ("Installers", vec![".exe", ".msi"]),
     ];
 
-    let files: Vec<_> = std::fs::read_dir(&downloads)
+    let files: Vec<_> = std::fs::read_dir(&source_folder)
         .map_err(|e| e.to_string())?
         .filter_map(|entry| entry.ok())
         .map(|entry| entry.path())
@@ -50,7 +84,7 @@ pub fn quick_sort() -> Result<SortResult, String> {
         .collect();
 
     if files.is_empty() {
-        return Err("No files found in Downloads.".to_string());
+        return Err("No files found in the selected folder.".to_string());
     }
 
     let mut history = SortHistory::default();
@@ -70,7 +104,7 @@ pub fn quick_sort() -> Result<SortResult, String> {
         }
         counts[index] += 1;
 
-        let destination_folder = downloads.join(category);
+        let destination_folder = source_folder.join(category);
         let existed = destination_folder.exists();
         std::fs::create_dir_all(&destination_folder).map_err(|e| e.to_string())?;
         if !existed {

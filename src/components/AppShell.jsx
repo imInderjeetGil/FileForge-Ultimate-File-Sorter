@@ -2,6 +2,18 @@ import { useEffect, useRef, useState } from "react";
 import Home from "../pages/Home";
 import QuickSorting from "../pages/QuickSorting";
 import AdvancedSorting from "../pages/AdvancedSorting";
+import About from "../pages/About";
+import { openDownloadsFolder,exitApp } from "../services/fileforge";
+
+import {
+  Home24Regular,
+  Home24Filled,
+  FolderOpen24Regular,
+  FolderOpen24Filled,
+  Settings24Regular,
+  Settings24Filled,
+} from "@fluentui/react-icons";
+
 
 function AppShell() {
   const [screen, setScreen] = useState("home");
@@ -9,6 +21,8 @@ function AppShell() {
   const [showAbout, setShowAbout] = useState(false);
   const [showSecurityNotice, setShowSecurityNotice] = useState(false);
 const [securityNoticeChecked, setSecurityNoticeChecked] = useState(false);
+const [startNewRule, setStartNewRule] = useState(false);
+const [openNewRule, setOpenNewRule] = useState(false);
 
   const menuRef = useRef(null);
 
@@ -76,20 +90,31 @@ const [securityNoticeChecked, setSecurityNoticeChecked] = useState(false);
     setOpenMenu(null);
   }
 
-  function renderScreen() {
-    switch (screen) {
-      case "quick":
-        return <QuickSorting />;
+function renderScreen() {
+  switch (screen) {
+    case "quick":
+      return <QuickSorting />;
 
-      case "advanced":
-        return <AdvancedSorting />;
+    case "advanced":
+  return (
+    <AdvancedSorting
+      openNewRule={openNewRule}
+      onNewRuleOpened={() => setOpenNewRule(false)}
+    />
+  );
 
-      case "home":
-      default:
-        return <Home />;
-    }
+    case "about":
+      return (
+        <About
+          onBack={() => setScreen("home")}
+        />
+      );
+
+    case "home":
+    default:
+      return <Home />;
   }
-
+}
   return (
     <div className="app">
 
@@ -113,34 +138,24 @@ const [securityNoticeChecked, setSecurityNoticeChecked] = useState(false);
             <div className="dropdown-menu">
 
               <button
-                onClick={() => navigate("advanced")}
-              >
-                New Sorting Rule
-              </button>
+  onClick={() => {
+    setOpenNewRule(true);
+    setScreen("advanced");
+    setOpenMenu(null);
+  }}
+>
+  New Sorting Rule
+</button>
 
-              <button
-                onClick={comingSoon}
-              >
-                Open Downloads Folder
-              </button>
+             <button onClick={openDownloadsFolder}>
+  Open Downloads Folder
+</button>
+<button onClick={exitApp}>
+  Exit
+</button>
 
               <div className="menu-separator" />
-
-              <button
-                className="disabled-menu-item"
-                disabled
-              >
-                Export Activity Log
-                <span>Coming soon</span>
-              </button>
-
-              <button
-                className="disabled-menu-item"
-                disabled
-              >
-                Exit
-                <span>Coming soon</span>
-              </button>
+  
 
             </div>
           )}
@@ -174,23 +189,7 @@ const [securityNoticeChecked, setSecurityNoticeChecked] = useState(false);
                 Advanced Sorting
               </button>
 
-              <div className="menu-separator" />
-
-              <button
-                className="disabled-menu-item"
-                disabled
-              >
-                Application Settings
-                <span>Coming soon</span>
-              </button>
-
-              <button
-                className="disabled-menu-item"
-                disabled
-              >
-                Diagnostics
-                <span>Coming soon</span>
-              </button>
+              
 
             </div>
           )}
@@ -253,31 +252,13 @@ const [securityNoticeChecked, setSecurityNoticeChecked] = useState(false);
             <div className="dropdown-menu">
 
               <button
-                className="disabled-menu-item"
-                disabled
-              >
-                FileForge Documentation
-                <span>Coming soon</span>
-              </button>
-
-              <button
-                className="disabled-menu-item"
-                disabled
-              >
-                Report a Problem
-                <span>Coming soon</span>
-              </button>
-
-              <div className="menu-separator" />
-
-              <button
-                onClick={() => {
-                  setOpenMenu(null);
-                  setShowAbout(true);
-                }}
-              >
-                About FileForge
-              </button>
+  onClick={() => {
+    setOpenMenu(null);
+    setScreen("about");
+  }}
+>
+  About FileForge
+</button>
 
             </div>
           )}
@@ -291,7 +272,6 @@ const [securityNoticeChecked, setSecurityNoticeChecked] = useState(false);
       <div className="main-toolbar">
 
         <div className="toolbar-title">
-          <span className="app-icon">⚡</span>
           <strong>FileForge</strong>
         </div>
 
@@ -311,35 +291,44 @@ const [securityNoticeChecked, setSecurityNoticeChecked] = useState(false);
         <aside className="sidebar">
 
           <div className="sidebar-title">
-            FileForge
+            Functions
           </div>
 
           <button
-            className={`nav-item ${
-              screen === "home" ? "active" : ""
-            }`}
-            onClick={() => setScreen("home")}
-          >
-            🏠 Home
-          </button>
+  className={`nav-item ${screen === "home" ? "active" : ""}`}
+  onClick={() => setScreen("home")}
+>
+  {screen === "home" ? (
+    <Home24Filled />
+  ) : (
+    <Home24Regular />
+  )}
+  Home
+</button>
 
-          <button
-            className={`nav-item ${
-              screen === "quick" ? "active" : ""
-            }`}
-            onClick={() => setScreen("quick")}
-          >
-            ⚡ Quick Sorting
-          </button>
+<button
+  className={`nav-item ${screen === "quick" ? "active" : ""}`}
+  onClick={() => setScreen("quick")}
+>
+  {screen === "quick" ? (
+    <FolderOpen24Filled />
+  ) : (
+    <FolderOpen24Regular />
+  )}
+  Quick Sorting
+</button>
 
-          <button
-            className={`nav-item ${
-              screen === "advanced" ? "active" : ""
-            }`}
-            onClick={() => setScreen("advanced")}
-          >
-            ⚙ Advanced Sorting
-          </button>
+<button
+  className={`nav-item ${screen === "advanced" ? "active" : ""}`}
+  onClick={() => setScreen("advanced")}
+>
+  {screen === "advanced" ? (
+    <Settings24Filled />
+  ) : (
+    <Settings24Regular />
+  )}
+  Advanced Sorting
+</button>
 
         </aside>
 
@@ -357,55 +346,6 @@ const [securityNoticeChecked, setSecurityNoticeChecked] = useState(false);
         <span>FileForge</span>
       </div>
 
-
-      {/* About Dialog */}
-
-      {showAbout && (
-        <div
-          className="about-overlay"
-          onMouseDown={() => setShowAbout(false)}
-        >
-          <div
-            className="about-dialog"
-            onMouseDown={(event) =>
-              event.stopPropagation()
-            }
-          >
-
-            <div className="about-title">
-              <span className="app-icon">⚡</span>
-
-              <strong>FileForge</strong>
-            </div>
-
-            <div className="about-tagline">
-              Just sort your messed Downloads Folder.
-            </div>
-
-            <div className="about-info">
-              <div>Version 1.0.0</div>
-              <div>Built with Tauri + React + Rust</div>
-            </div>
-
-            <div className="about-actions">
-             <button
-  className="primary-button"
-  onClick={() => {
-    localStorage.setItem(
-      "fileforge_security_notice_shown",
-      "true"
-    );
-
-    setShowSecurityNotice(false);
-  }}
->
-  OK
-</button>
-            </div>
-
-          </div>
-        </div>
-      )}
 
       {showSecurityNotice && (
   <div className="security-overlay">

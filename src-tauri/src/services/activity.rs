@@ -53,3 +53,14 @@ pub fn log_activity(entry: ActivityEntry) -> Result<(), String> {
 
     save_activity(&activity)
 }
+
+pub fn clear_activity() -> Result<(), String> {
+    let path = activity_path()?;
+
+    if path.exists() {
+        std::fs::write(&path, "[]")
+            .map_err(|e| e.to_string())?;
+    }
+
+    Ok(())
+}

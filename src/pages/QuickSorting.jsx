@@ -1,18 +1,24 @@
 import { useEffect, useState } from "react";
+
 import {
   quickSort,
-  scanDownloads,
+  scanFolder,
   undoSort,
+  selectFolder,
+  getDownloadsFolder,
 } from "../services/fileforge";
 
 function QuickSorting() {
   const [message, setMessage] = useState("");
   const [sortResult, setSortResult] = useState(null);
   const [fileCount, setFileCount] = useState(0);
+  const [selectedFolder, setSelectedFolder] = useState("");
 
-  async function refreshFileCount() {
+  async function refreshFileCount(folder = selectedFolder) {
+    if (!folder) return;
+
     try {
-      const count = await scanDownloads();
+      const count = await scanFolder(folder);
       setFileCount(count);
     } catch (error) {
       setMessage(`Error: ${error}`);
@@ -20,25 +26,59 @@ function QuickSorting() {
   }
 
   useEffect(() => {
-    refreshFileCount();
+    async function initialize() {
+      try {
+        const downloads = await getDownloadsFolder();
+
+        setSelectedFolder(downloads);
+
+        const count = await scanFolder(downloads);
+        setFileCount(count);
+      } catch (error) {
+        setMessage(`Error: ${error}`);
+      }
+    }
+
+    initialize();
   }, []);
 
-  async function runQuickSort() {
+  async function handleBrowse() {
     try {
-      const count = await scanDownloads();
+      const folder = await selectFolder();
+
+      if (!folder) return;
+
+      setSelectedFolder(folder);
+      setSortResult(null);
+      setMessage("");
+
+      await refreshFileCount(folder);
+    } catch (error) {
+      setMessage(`Error: ${error}`);
+    }
+  }
+
+  async function runQuickSort() {
+    if (!selectedFolder) {
+      setMessage("Please select a folder first.");
+      return;
+    }
+
+    try {
+      const count = await scanFolder(selectedFolder);
       setFileCount(count);
 
       if (count === 0) {
-        setMessage("No files found in Downloads.");
+        setMessage("No files found in the selected folder.");
         return;
       }
 
-      const result = await quickSort();
+      const result = await quickSort(selectedFolder);
 
       setSortResult(result);
       setMessage("");
 
-      const remaining = await scanDownloads();
+      const remaining = await scanFolder(selectedFolder);
       setFileCount(remaining);
     } catch (error) {
       setMessage(`Error: ${error}`);
@@ -63,17 +103,37 @@ function QuickSorting() {
       <div className="page-header">
         <div>
           <h1>Quick Sorting</h1>
-          <p>Organize your Downloads folder with one click.</p>
+          <p>Organize files from any folder with one click.</p>
+        </div>
+      </div>
+
+      <div className="form-section" style={{ marginTop: "20px" }}>
+        <label>Folder to sort</label>
+
+        <div className="path-row">
+          <input
+            type="text"
+            value={selectedFolder}
+            readOnly
+            placeholder="Select a folder..."
+          />
+
+          <button
+            className="secondary-button"
+            onClick={handleBrowse}
+          >
+            Browse
+          </button>
         </div>
       </div>
 
       <div className="toolbar">
         <button
           onClick={runQuickSort}
-          disabled={fileCount === 0}
+          disabled={!selectedFolder || fileCount === 0}
           className="rounded-xl bg-white px-6 py-3 text-sm font-medium text-black hover:bg-zinc-200 transition disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          ⚡ Sort Downloads
+          ⚡ Quick Sort
         </button>
 
         <button id="UndoBtn" onClick={handleUndoSort}>
@@ -149,9 +209,16 @@ function QuickSorting() {
 
       {!sortResult && !message && (
         <div className="empty-panel">
-          <strong>Downloads</strong>
+          <strong>
+            {selectedFolder
+              ? "Selected Folder"
+              : "No Folder Selected"}
+          </strong>
+
           <p>
-            Click "Sort Downloads" to organize your files.
+            {selectedFolder
+              ? "Choose Quick Sort to organize the files in this folder."
+              : "Click Browse to select a folder."}
           </p>
         </div>
       )}

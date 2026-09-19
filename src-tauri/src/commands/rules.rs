@@ -5,6 +5,20 @@ use std::path::Path;
 use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::State;
 
+fn normalize_windows_path(path: &Path) -> String {
+    let value = path.to_string_lossy().to_string();
+
+    if let Some(rest) = value.strip_prefix(r"\\?\UNC\") {
+        return format!(r"\\{}", rest);
+    }
+
+    if let Some(rest) = value.strip_prefix(r"\\?\") {
+        return rest.to_string();
+    }
+
+    value
+}
+
 fn validate_rule(
     rule_name: &str,
     watch_folder: &str,
@@ -42,10 +56,10 @@ fn validate_rule(
     }
 
     Ok((
-        rule_name.to_string(),
-        watch_canonical.to_string_lossy().to_string(),
-        destination_canonical.to_string_lossy().to_string(),
-    ))
+    rule_name.to_string(),
+    normalize_windows_path(&watch_canonical),
+    normalize_windows_path(&destination_canonical),
+))
 }
 
 #[tauri::command]

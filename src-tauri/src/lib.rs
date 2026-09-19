@@ -5,14 +5,19 @@ mod services;
 use commands::{
     delete_rule,
     get_activity,
+    clear_activity,
     get_rules,
     quick_sort,
     save_rule,
     scan_downloads,
+    scan_folder,
     scan_folder_extensions,
     set_rule_enabled,
     undo_sort,
     update_rule,
+    get_downloads_folder,
+    exit_app,
+    open_downloads_folder,
 };
 
 use services::rules::load_rules;
@@ -126,6 +131,7 @@ pub fn run() {
 
         .invoke_handler(tauri::generate_handler![
             scan_downloads,
+            scan_folder,
             quick_sort,
             undo_sort,
             scan_folder_extensions,
@@ -135,6 +141,10 @@ pub fn run() {
             delete_rule,
             update_rule,
             get_activity,
+            get_downloads_folder,
+            clear_activity,
+            exit_app,
+            open_downloads_folder
         ])
 
         .run(tauri::generate_context!())

@@ -54,28 +54,89 @@ pub fn move_matching_file(
         return None;
     }
 
-    // A file may still be locked while an application is finishing a copy.
-    for _ in 0..5 {
-        if let Some(name) = path.file_name() {
-            let destination =
-                unique_destination(destination_folder, name);
+    let name = path.file_name()?;
+    let destination = unique_destination(destination_folder, name);
 
-            match fs::rename(path, &destination) {
-                Ok(_) => {
-                    return Some((
-                        path.to_path_buf(),
-                        destination,
-                    ));
-                }
+    // First try the normal rename.
+    match fs::rename(path, &destination) {
+        Ok(_) => {
+            return Some((
+                path.to_path_buf(),
+                destination,
+            ));
+        }
 
-                Err(_) => {
-                    thread::sleep(Duration::from_millis(300));
-                }
+        Err(error) => {
+            // Cross-drive move on Windows.
+            if error.raw_os_error() != Some(17) {
+                eprintln!(
+                    "[FileForge] Move failed: {:?} -> {:?} | Error: {}",
+                    path,
+                    destination,
+                    error
+                );
+                return None;
             }
-        } else {
-            return None;
+
+            println!(
+                "[FileForge] Cross-drive move detected. Copying: {:?} -> {:?}",
+                path,
+                destination
+            );
         }
     }
 
-    None
+    // Copy the file to the destination drive.
+    match fs::copy(path, &destination) {
+        Ok(_) => {
+            // Verify that the destination actually exists.
+            if !destination.exists() {
+                eprintln!(
+                    "[FileForge] Copy verification failed: {:?}",
+                    destination
+                );
+
+                let _ = fs::remove_file(&destination);
+                return None;
+            }
+
+            // Only delete the original after successful copy.
+            match fs::remove_file(path) {
+                Ok(_) => {
+                    println!(
+                        "[FileForge] Cross-drive move successful: {:?} -> {:?}",
+                        path,
+                        destination
+                    );
+
+                    Some((
+                        path.to_path_buf(),
+                        destination,
+                    ))
+                }
+
+                Err(error) => {
+                    eprintln!(
+                        "[FileForge] Copy succeeded but source could not be deleted: {:?} | Error: {}",
+                        path,
+                        error
+                    );
+
+                    // Don't pretend the move succeeded.
+                    None
+                }
+            }
+        }
+
+        Err(error) => {
+            eprintln!(
+                "[FileForge] Cross-drive copy failed: {:?} -> {:?} | Error: {}",
+                path,
+                destination,
+                error
+            );
+
+            None
+        }
+    }
 }

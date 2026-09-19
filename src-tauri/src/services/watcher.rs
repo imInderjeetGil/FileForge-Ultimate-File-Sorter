@@ -20,41 +20,75 @@ impl Default for AppState {
 }
 
 fn handle_event(event: Event, rule: &Rule) {
+    println!(
+        "[FileForge] Event for rule '{}': {:?}",
+        rule.rule_name,
+        event.kind
+    );
+
     match event.kind {
         EventKind::Create(_) | EventKind::Modify(_) => {
             let destination = Path::new(&rule.destination);
 
             for path in event.paths {
-                if let Some((source, destination)) =
-                    move_matching_file(
-                        &path,
-                        destination,
-                        &rule.extensions,
-                    )
-                {
-                    let timestamp = std::time::SystemTime::now()
-    .duration_since(std::time::UNIX_EPOCH)
-    .map(|duration| duration.as_millis().to_string())
-    .unwrap_or_default();
+                println!(
+                    "[FileForge] Detected file: {:?}",
+                    path
+                );
 
-                    let file_name = source
-                        .file_name()
-                        .and_then(|name| name.to_str())
-                        .unwrap_or("Unknown file")
-                        .to_string();
+                println!(
+                    "[FileForge] Rule extensions: {:?}",
+                    rule.extensions
+                );
 
-                    let activity = ActivityEntry {
-                        timestamp,
-                        rule_id: rule.id.clone(),
-                        rule_name: rule.rule_name.clone(),
-                        file_name,
-                        source: source.to_string_lossy().to_string(),
-                        destination: destination.to_string_lossy().to_string(),
-                    };
+                println!(
+                    "[FileForge] Destination: {:?}",
+                    destination
+                );
 
-                    if let Err(error) = log_activity(activity) {
-                        eprintln!(
-                            "Failed to log activity: {error}"
+                match move_matching_file(
+                    &path,
+                    destination,
+                    &rule.extensions,
+                ) {
+                    Some((source, moved_to)) => {
+                        println!(
+                            "[FileForge] MOVED: {:?} -> {:?}",
+                            source,
+                            moved_to
+                        );
+
+                        let timestamp = std::time::SystemTime::now()
+                            .duration_since(std::time::UNIX_EPOCH)
+                            .map(|duration| duration.as_millis().to_string())
+                            .unwrap_or_default();
+
+                        let file_name = source
+                            .file_name()
+                            .and_then(|name| name.to_str())
+                            .unwrap_or("Unknown file")
+                            .to_string();
+
+                        let activity = ActivityEntry {
+                            timestamp,
+                            rule_id: rule.id.clone(),
+                            rule_name: rule.rule_name.clone(),
+                            file_name,
+                            source: source.to_string_lossy().to_string(),
+                            destination: moved_to.to_string_lossy().to_string(),
+                        };
+
+                        if let Err(error) = log_activity(activity) {
+                            eprintln!(
+                                "Failed to log activity: {error}"
+                            );
+                        }
+                    }
+
+                    None => {
+                        println!(
+                            "[FileForge] NOT MOVED: {:?}",
+                            path
                         );
                     }
                 }
@@ -119,10 +153,10 @@ fn process_existing_files(rule: &Rule) -> Result<(), String> {
 pub fn start_watcher(state: &AppState, rule: Rule) -> Result<(), String> {
     stop_watcher(state, &rule.id)?;
 
-    // Process files that were already present before the watcher started.
-    process_existing_files(&rule)?;
-
     let callback_rule = rule.clone();
+
+    // Start watching immediately so the application does not block
+    // while existing files are being processed.
     let mut watcher = recommended_watcher(move |result| {
         if let Ok(event) = result {
             handle_event(event, &callback_rule);
@@ -131,18 +165,31 @@ pub fn start_watcher(state: &AppState, rule: Rule) -> Result<(), String> {
     .map_err(|e| e.to_string())?;
 
     watcher
-        .watch(Path::new(&rule.watch_folder), RecursiveMode::NonRecursive)
+        .watch(
+            Path::new(&rule.watch_folder),
+            RecursiveMode::NonRecursive,
+        )
         .map_err(|e| e.to_string())?;
 
     state
         .watchers
         .lock()
         .map_err(|_| "Watcher state lock failed.".to_string())?
-        .insert(rule.id, watcher);
+        .insert(rule.id.clone(), watcher);
+
+    // Process existing files in the background.
+    std::thread::spawn(move || {
+        if let Err(error) = process_existing_files(&rule) {
+            eprintln!(
+                "Failed to process existing files for rule '{}': {}",
+                rule.rule_name,
+                error
+            );
+        }
+    });
 
     Ok(())
 }
-
 pub fn stop_watcher(state: &AppState, rule_id: &str) -> Result<(), String> {
     state
         .watchers

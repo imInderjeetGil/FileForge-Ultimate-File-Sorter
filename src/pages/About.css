@@ -1,0 +1,168 @@
+.about-page {
+  height: 100%;
+  overflow-y: auto;
+  background: #ffffff;
+}
+
+.about-page-header {
+  display: flex;
+  justify-content: flex-end;
+  padding: 18px 28px 0;
+}
+
+.about-content {
+  width: min(820px, calc(100% - 56px));
+  margin: 0 auto;
+  padding: 20px 0 50px;
+}
+
+.about-hero {
+  text-align: center;
+  padding: 10px 0 36px;
+  border-bottom: 1px solid #e2e2e2;
+}
+
+.about-logo {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 14px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 30px;
+
+  background: #f1f1f1;
+  border: 1px solid #dddddd;
+}
+
+.about-hero h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.about-hero p {
+  margin: 7px 0 12px;
+  color: #666;
+  font-size: 13px;
+}
+
+.about-version {
+  color: #777;
+  font-size: 11px;
+}
+
+.about-section {
+  padding: 28px 0;
+  border-bottom: 1px solid #e2e2e2;
+}
+
+.about-section h2 {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.about-section p {
+  max-width: 720px;
+  margin: 0 0 10px;
+  color: #555;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.about-feature-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.about-feature {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+
+  padding: 14px;
+
+  border: 1px solid #e2e2e2;
+  background: #fafafa;
+}
+
+.about-feature svg {
+  flex: 0 0 auto;
+  font-size: 21px;
+  color: #444;
+}
+
+.about-feature div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.about-feature strong {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.about-feature span {
+  color: #777;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.about-tech-stack {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.about-tech-stack span {
+  padding: 6px 10px;
+  border: 1px solid #dcdcdc;
+  background: #f7f7f7;
+  font-size: 11px;
+}
+
+.about-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.about-actions .secondary-button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.about-footer {
+  padding-top: 24px;
+  text-align: center;
+  color: #999;
+  font-size: 10px;
+}
+
+@media (max-width: 700px) {
+  .about-feature-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.about-logo {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 14px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.about-logo img {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+}

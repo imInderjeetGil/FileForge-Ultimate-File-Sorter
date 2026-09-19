@@ -17,7 +17,8 @@ function folderName(path) {
   return clean.split(/[\\/]/).pop() || clean;
 }
 
-function AdvancedSorting() {
+function AdvancedSorting({openNewRule = false,
+  onNewRuleOpened,}) {
   const [creatingRule, setCreatingRule] = useState(false);
   const [editingRule, setEditingRule] = useState(null);
   const [rules, setRules] = useState([]);
@@ -38,10 +39,12 @@ function AdvancedSorting() {
       setMessage(`Error loading rules: ${error}`);
     }
   }
-
-  useEffect(() => {
-    loadRules();
-  }, []);
+useEffect(() => {
+  if (openNewRule) {
+    openNewRuleForm();
+    onNewRuleOpened?.();
+  }
+}, [openNewRule]);
 
   useEffect(() => {
     function closeContextMenu() {
@@ -73,44 +76,75 @@ function AdvancedSorting() {
     setEditingRule(null);
   }
 
-  function openNewRule() {
+  function openNewRuleForm() {
     resetForm();
     setMessage("");
     setCreatingRule(true);
   }
 
-  async function openEditRule(rule) {
-    setContextMenu(null);
-    setCreatingRule(true);
-    setEditingRule(rule);
-    setRuleName(rule.rule_name);
-    setWatchFolder(rule.watch_folder);
-    setDestination(rule.destination);
-    setSelectedExtensions(rule.extensions);
-    setRunInBackground(rule.enabled);
-    setMessage("");
+ async function openEditRule(rule) {
+  setContextMenu(null);
+  setCreatingRule(true);
+  setEditingRule(rule);
 
-    try {
-      const scanned = await scanFolderExtensions(rule.watch_folder);
-      const existing = new Set(scanned.map((item) => item.extension));
-      const missingSelected = rule.extensions
-        .filter((extension) => !existing.has(extension))
-        .map((extension) => ({ extension, count: 0 }));
+  setRuleName(rule.rule_name);
+  setWatchFolder(rule.watch_folder);
+  setDestination(rule.destination);
 
-      setExtensions([...scanned, ...missingSelected]);
-    } catch (error) {
-      setExtensions(rule.extensions.map((extension) => ({ extension, count: 0 })));
-      setMessage(`Could not rescan watch folder: ${error}`);
-    }
+  // IMPORTANT:
+  // Always restore the extensions saved in the rule.
+  setSelectedExtensions(rule.extensions || []);
+
+  setRunInBackground(rule.enabled);
+  setMessage("");
+
+  try {
+    const scanned = await scanFolderExtensions(rule.watch_folder);
+
+    // Files currently present in the folder.
+    const scannedMap = new Map(
+      scanned.map((item) => [item.extension, item.count])
+    );
+
+    // The rule configuration is the source of truth.
+    // Even if the folder is empty, keep the saved extensions.
+    const savedExtensions = (rule.extensions || []).map((extension) => ({
+      extension,
+      count: scannedMap.get(extension) || 0,
+    }));
+
+    // Also show newly discovered extensions that aren't
+    // currently part of the rule.
+    const newExtensions = scanned.filter(
+      (item) => !(rule.extensions || []).includes(item.extension)
+    );
+
+    setExtensions([
+      ...savedExtensions,
+      ...newExtensions,
+    ]);
+  } catch (error) {
+    // Folder may be empty/unavailable.
+    // Still show the extensions saved in the rule.
+    setExtensions(
+      (rule.extensions || []).map((extension) => ({
+        extension,
+        count: 0,
+      }))
+    );
+
+    setMessage(`Could not rescan watch folder: ${error}`);
   }
+}
 
   async function chooseWatchFolder() {
     try {
-      const selected = await selectFolder();
-      if (!selected) return;
+     const selected = await selectFolder();
+if (!selected) return;
 
-      setWatchFolder(selected);
-      setExtensions(await scanFolderExtensions(selected));
+setWatchFolder(selected);
+setExtensions(await scanFolderExtensions(selected));
+
       setSelectedExtensions([]);
     } catch (error) {
       setMessage(`Error scanning folder: ${error}`);
@@ -362,7 +396,7 @@ function AdvancedSorting() {
           <p>Create rules to automatically organize files.</p>
         </div>
 
-        <button className="primary-button" onClick={openNewRule}>
+        <button className="primary-button" onClick={openNewRuleForm}>
           + New Rule
         </button>
       </div>
@@ -401,6 +435,7 @@ function AdvancedSorting() {
                       {rule.enabled ? "Running" : "Paused"}
                     </span>
                   </div>
+                  
 
                   <div className="rule-summary">
                     <span>WATCH: {folderName(rule.watch_folder)}</span>
@@ -408,6 +443,36 @@ function AdvancedSorting() {
                     <span>MOVE TO: {folderName(rule.destination)}</span>
                   </div>
                 </div>
+                <div className="rule-actions">
+  <button
+    className="rule-menu-button"
+    onClick={(event) => {
+      event.stopPropagation();
+
+      if (
+        contextMenu &&
+        contextMenu.rule.id === rule.id
+      ) {
+        setContextMenu(null);
+        return;
+      }
+
+      const rect = event.currentTarget.getBoundingClientRect();
+
+      setContextMenu({
+        x: Math.min(
+          rect.right - 190,
+          window.innerWidth - 198
+        ),
+        y: rect.bottom + 4,
+        rule,
+      });
+    }}
+    aria-label={`Options for ${rule.rule_name}`}
+  >
+    ⋮
+  </button>
+</div>
               </div>
             ))}
           </div>
