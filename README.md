@@ -2,629 +2,278 @@
 
 ### Ultimate File Sorter for Windows
 
-**FileForge** is a native desktop file organization application that automatically sorts files into meaningful folders and lets users create persistent rules for continuous background organization.
+A lightweight native desktop application that automatically organizes files into meaningful folders using quick sorting, custom automation rules, and background folder monitoring.
 
-Built with **Tauri 2, Rust, React, Vite, and Tailwind CSS**, FileForge combines a lightweight modern interface with native filesystem operations for fast and reliable file management.
+<p align="center">
+  <a href="https://github.com/imInderjeetGil/FileForge-Ultimate-File-Sorter">Repository</a>
+  ·
+  <a href="https://github.com/imInderjeetGil/FileForge-Ultimate-File-Sorter/issues">Report a Bug</a>
+  ·
+  <a href="https://github.com/imInderjeetGil/FileForge-Ultimate-File-Sorter/issues">Request a Feature</a>
+</p>
 
-> Stop manually organizing your Downloads folder.
-> Define how your files should be handled once — FileForge takes care of the rest.
+<p align="center">
+  <img src="https://img.shields.io/badge/DESKTOP-APPLICATION-555555?style=for-the-badge" alt="Desktop Application" />
+  <img src="https://img.shields.io/badge/TAURI-2-FFC131?style=for-the-badge&logo=tauri&logoColor=black" alt="Tauri 2" />
+  <img src="https://img.shields.io/badge/REACT-19-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React 19" />
+  <img src="https://img.shields.io/badge/VITE-8-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" />
+  <img src="https://img.shields.io/badge/RUST-BACKEND-DEA584?style=for-the-badge&logo=rust&logoColor=black" alt="Rust" />
+</p>
 
----
-
-## ✨ Features
-
-### ⚡ Quick Sorting
-
-Organize files from any selected folder with a single action.
-
-FileForge automatically classifies supported files into predefined categories:
-
-* 📄 Documents
-* 🖼 Images
-* 🎬 Videos
-* 🎵 Music
-* 📦 Archives
-* ⚙ Installers
-* 📁 Miscellaneous
-
-After sorting, FileForge provides a breakdown of how many files were moved into each category.
-
-### ↶ Undo Sorting
-
-Quick Sorting maintains a history of file movements so the latest sorting operation can be reverted.
-
-Undo restores files to their original locations and removes folders created by the sorting operation when appropriate.
-
-This provides a safer workflow than permanently moving files without a recovery mechanism.
+<p align="center">
+  <img src="https://img.shields.io/badge/TAILWIND-CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
+  <img src="https://img.shields.io/badge/FILESYSTEM-MONITORING-4CAF50?style=for-the-badge" alt="Filesystem Monitoring" />
+  <img src="https://img.shields.io/badge/PLATFORM-WINDOWS-0078D6?style=for-the-badge&logo=windows&logoColor=white" alt="Windows" />
+</p>
 
 ---
 
-### ⚙ Advanced Sorting
+## Overview
 
-Create custom file organization rules based on:
+**FileForge** is a native Windows file organization application designed to make file management faster, safer, and more automated.
 
-* Watch folder
-* File extensions
-* Destination folder
-* Background execution
+It provides a centralized interface for sorting files, creating custom organization rules, monitoring folders in the background, tracking file activity, and undoing the latest sorting operation.
+
+The system combines:
+
+- A React and Vite desktop interface
+- A Tauri-powered native application shell
+- A Rust backend for filesystem operations
+- Event-driven folder monitoring
+- Local JSON-based rule persistence
+- Extension-based file classification
+
+> Organize your files once. Let FileForge handle the rest.
+
+> **Important:** FileForge performs real filesystem operations and can automatically move files. Always test rules with a temporary folder before using them on important directories.
+
+---
+
+## Features
+
+### Quick Sorting
+
+Organize files from a selected folder with one action.
+
+FileForge categorizes files into predefined folders such as:
+
+- Documents
+- Images
+- Videos
+- Music
+- Archives
+- Installers
+- Miscellaneous
+
+After sorting, the application displays a summary of the files moved into each category.
+
+### Undo Sorting
+
+FileForge maintains a history of the latest sorting operation.
+
+The undo feature can:
+
+- Restore files to their original locations
+- Reverse the latest sorting action
+- Remove folders created during the sorting operation when appropriate
+
+### Advanced Sorting Rules
+
+Create custom rules based on:
+
+- Watch folder
+- File extensions
+- Destination folder
+- Enabled or paused status
 
 Example:
 
 ```text
-Rule: Java Development Files
-
-Watch Folder:
-D:\Downloads
-
-Extensions:
-.java
-.jar
-.class
-
-Destination:
-D:\Projects\Java
+Rule name: Java Development Files
+Watch folder: C:\Users\YourName\Downloads
+Extensions: .java, .jar, .class
+Destination: C:\Users\YourName\Projects\Java
 ```
 
-Whenever a matching file arrives in the watched directory, FileForge can automatically move it to the configured destination.
+When a matching file appears in the watched folder, FileForge can automatically move it to the configured destination.
 
----
+### Background Folder Monitoring
 
-### 👁 Folder Monitoring
-
-Advanced Sorting uses filesystem event monitoring to detect newly created or modified files.
-
-The application uses the Rust `notify` ecosystem to watch configured folders without continuously polling the filesystem.
-
-This enables event-driven automation such as:
+Advanced Sorting uses filesystem events to detect new or modified files.
 
 ```text
-File arrives
-     ↓
+File appears
+    ↓
 Filesystem event detected
-     ↓
-FileForge checks active rules
-     ↓
-Extension matched
-     ↓
-Destination resolved
-     ↓
-File moved
-     ↓
-Activity recorded
+    ↓
+Active rules are checked
+    ↓
+File extension is matched
+    ↓
+File is moved
+    ↓
+Activity is recorded
 ```
 
----
+### Persistent Rules
 
-### 💾 Persistent Rules
+Saved rules remain available after restarting the application.
 
-Sorting rules survive application restarts.
-
-Rules are stored locally in:
+On Windows, rules are stored locally at:
 
 ```text
 %APPDATA%\FileForge\rules.json
 ```
 
-When FileForge starts, enabled rules are loaded and their background watchers are automatically restored.
+FileForge does not require a cloud database or external backend service for core functionality.
 
-This means users do not need to recreate their automation every time they restart Windows.
+### Rule Management
 
----
+Each rule can be:
 
-### ▶ Run / Pause Rules
+- Created
+- Edited
+- Enabled
+- Paused
+- Deleted
 
-Every Advanced Sorting rule can be:
+Pausing a rule keeps its configuration but stops automatic file movement.
 
-* **Running** — background sorting is active
-* **Paused** — the rule remains saved but does not automatically move files
-
-Rules can also be edited or deleted.
-
-Deleting a rule does **not** delete or move existing files.
-
----
-
-### 📊 Activity Tracking
+### Activity Tracking
 
 FileForge records background sorting activity, including:
 
-* Rule name
-* File name
-* Source path
-* Destination path
-* Timestamp
+- Rule name
+- File name
+- Source path
+- Destination path
+- Timestamp
 
-This makes it easier to understand what FileForge has automatically changed.
+This makes it easier to understand what files were moved automatically.
 
----
+### System Tray Support
 
-### 🖥 System Tray Integration
+FileForge can continue running in the background through the system tray.
 
-FileForge is designed to run quietly in the background.
+Users can:
 
-Closing the main application window hides FileForge to the system tray instead of terminating the application.
+- Reopen the application
+- Continue background monitoring
+- Exit FileForge completely
 
-From the tray, users can:
+### Native Desktop Performance
 
-* Open FileForge
-* Exit FileForge
-
-This allows Advanced Sorting rules to continue running without keeping the main UI visible.
-
----
-
-### 🔒 Windows Security Awareness
-
-FileForge can require Windows Controlled Folder Access permissions when attempting to modify protected directories.
-
-The application provides an in-app notice explaining where users can allow FileForge through Windows Security.
-
----
-
-### 🪶 Lightweight Native Architecture
-
-Unlike a traditional web application, FileForge does not require a backend server, database server, or Python runtime.
-
-The application consists of:
+FileForge uses Rust for native filesystem operations through Tauri.
 
 ```text
 React UI
    ↓
 Tauri IPC
    ↓
-Rust backend
+Rust Backend
    ↓
-Windows filesystem
+Windows Filesystem
 ```
-
-This makes FileForge suitable for native desktop deployment.
 
 ---
 
-# 🏗 Architecture
+## Technology Stack
 
-FileForge follows a **hybrid desktop architecture**.
+| Layer | Technology |
+| --- | --- |
+| Desktop Framework | Tauri 2 |
+| Frontend | React 19 |
+| Build Tool | Vite |
+| Styling | Tailwind CSS |
+| Native Backend | Rust |
+| Filesystem Monitoring | `notify` |
+| Serialization | Serde / `serde_json` |
+| Desktop Communication | Tauri Commands |
+| Persistence | Local JSON |
+| Package Manager | npm |
+| Native Build System | Cargo |
+| Primary Platform | Windows |
 
-The frontend handles presentation and user interaction while Rust handles privileged/native filesystem operations.
+---
+
+## How It Works
+
+### Quick Sorting Flow
 
 ```text
-┌─────────────────────────────────────────────────────────┐
-│                      FileForge                           │
-│                                                         │
-│  ┌───────────────────────────────────────────────────┐  │
-│  │                  React Frontend                   │  │
-│  │                                                   │  │
-│  │  AppShell                                         │  │
-│  │     │                                             │  │
-│  │     ├── Home                                      │  │
-│  │     ├── Quick Sorting                             │  │
-│  │     ├── Advanced Sorting                          │  │
-│  │     └── About                                     │  │
-│  │                                                   │  │
-│  │  React 19 + Vite + Tailwind CSS                   │  │
-│  └──────────────────────┬────────────────────────────┘  │
-│                         │                                │
-│                    Tauri IPC                             │
-│                         │                                │
-│  ┌──────────────────────▼────────────────────────────┐  │
-│  │                  Rust Backend                     │  │
-│  │                                                   │  │
-│  │  Commands                                         │  │
-│  │     │                                             │  │
-│  │     ├── Quick Sort                                │  │
-│  │     ├── Scanner                                   │  │
-│  │     ├── Rules                                     │  │
-│  │     ├── Activity                                  │  │
-│  │     └── Application                               │  │
-│  │                                                   │  │
-│  │  Services                                         │  │
-│  │     │                                             │  │
-│  │     ├── File Manager                              │  │
-│  │     ├── Rule Manager                              │  │
-│  │     └── Filesystem Watcher                        │  │
-│  └──────────────────────┬────────────────────────────┘  │
-│                         │                                │
-│              ┌──────────┴───────────┐                    │
-│              │                      │                    │
-│        Windows FS              Local Storage              │
-│              │                      │                    │
-│      User Files/Folders        rules.json                │
-│                               activity/history            │
-└─────────────────────────────────────────────────────────┘
+User selects a folder
+        ↓
+React interface
+        ↓
+Tauri command invocation
+        ↓
+Rust scans the folder
+        ↓
+File category is detected
+        ↓
+Destination folder is created if required
+        ↓
+File is moved
+        ↓
+Operation is recorded
+        ↓
+Sorting summary is displayed
 ```
 
----
-
-# 🔄 Core Data Flow
-
-## Quick Sorting
+### Advanced Sorting Flow
 
 ```text
-User selects folder
-       ↓
-React UI
-       ↓
-Tauri invoke()
-       ↓
-Rust quick_sort command
-       ↓
-Scan folder
-       ↓
-Determine file category
-       ↓
-Create category directory if required
-       ↓
-Move file
-       ↓
-Record operation in history
-       ↓
-Return sorting statistics
-       ↓
-React displays result
+User creates a rule
+        ↓
+Rule is validated
+        ↓
+Rule is saved locally
+        ↓
+Folder watcher starts
+        ↓
+New file event is detected
+        ↓
+File extension is checked
+        ↓
+Matching file is moved
+        ↓
+Activity entry is recorded
 ```
 
 ---
 
-## Advanced Sorting
+## Supported File Categories
+
+Quick Sorting uses predefined extension-based categories:
 
 ```text
-User creates rule
-       ↓
-React collects configuration
-       ↓
-Tauri IPC
-       ↓
-Rust validates rule
-       ↓
-Rule saved to rules.json
-       ↓
-Watcher started if enabled
-       ↓
-Filesystem event occurs
-       ↓
-notify detects event
-       ↓
-File extension checked
-       ↓
-Matching file moved
-       ↓
-ActivityEntry generated
-       ↓
-Activity stored
+Documents
+Images
+Videos
+Music
+Archives
+Installers
+Miscellaneous
 ```
+
+Advanced Sorting allows users to select custom extensions and destinations.
+
+FileForge currently organizes files based on their file extensions rather than their content.
 
 ---
 
-# 🧱 Project Structure
-
-```text
-FileForge-Ultimate-File-Sorter/
-│
-├── public/
-│
-├── src/
-│   │
-│   ├── components/
-│   │   ├── AppShell.jsx
-│   │   └── ExtensionList.jsx
-│   │
-│   ├── pages/
-│   │   ├── Home.jsx
-│   │   ├── QuickSorting.jsx
-│   │   ├── AdvancedSorting.jsx
-│   │   ├── AdvancedSorting.css
-│   │   └── About.jsx
-│   │
-│   ├── services/
-│   │   └── fileforge.js
-│   │
-│   ├── App.jsx
-│   └── App.css
-│
-├── src-tauri/
-│   │
-│   ├── src/
-│   │   │
-│   │   ├── commands/
-│   │   │   ├── mod.rs
-│   │   │   ├── quick_sort.rs
-│   │   │   ├── scanner.rs
-│   │   │   ├── rules.rs
-│   │   │   ├── activity.rs
-│   │   │   └── app.rs
-│   │   │
-│   │   ├── models/
-│   │   │   ├── mod.rs
-│   │   │   ├── rule.rs
-│   │   │   ├── history.rs
-│   │   │   └── activity.rs
-│   │   │
-│   │   ├── services/
-│   │   │   ├── file_manager.rs
-│   │   │   ├── rules.rs
-│   │   │   ├── watcher.rs
-│   │   │   └── activity.rs
-│   │   │
-│   │   ├── lib.rs
-│   │   └── main.rs
-│   │
-│   ├── Cargo.toml
-│   └── tauri.conf.json
-│
-├── package.json
-├── package-lock.json
-├── vite.config.js
-└── README.md
-```
-
----
-
-# 🧩 Architectural Responsibilities
-
-## React Frontend
-
-Responsible for:
-
-* User interface
-* Navigation
-* Folder selection
-* Rule configuration
-* Extension selection
-* Sorting status
-* Activity presentation
-* User feedback
-* Application controls
-
-The frontend does not directly manipulate files.
-
----
-
-## Tauri IPC Layer
-
-The frontend communicates with Rust through Tauri commands.
-
-Example:
-
-```javascript
-await invoke("quick_sort", {
-    folder
-});
-```
-
-This provides a controlled boundary between the UI and native filesystem functionality.
-
----
-
-## Rust Command Layer
-
-Commands expose native functionality to the frontend.
-
-Major command groups include:
-
-```text
-Quick Sorting
-├── scan_downloads
-├── scan_folder
-├── quick_sort
-├── undo_sort
-└── get_downloads_folder
-
-Rules
-├── get_rules
-├── save_rule
-├── update_rule
-├── set_rule_enabled
-└── delete_rule
-
-Scanner
-└── scan_folder_extensions
-
-Activity
-├── get_activity
-└── clear_activity
-
-Application
-├── open_downloads_folder
-└── exit_app
-```
-
----
-
-# 👀 Rule Engine
-
-An Advanced Sorting rule contains:
-
-```text
-Rule
-├── ID
-├── Rule Name
-├── Watch Folder
-├── Extensions
-├── Destination
-└── Enabled
-```
-
-Conceptually:
-
-```text
-IF
-
-    file is created/modified
-    AND
-    file extension matches rule
-
-THEN
-
-    move file
-    to configured destination
-    AND
-    record activity
-```
-
-For example:
-
-```text
-IF extension == ".pdf"
-AND watch_folder == "Downloads"
-
-THEN
-
-move → Documents/PDFs
-```
-
-Multiple rules can coexist independently.
-
----
-
-# 🔭 Filesystem Watcher
-
-FileForge uses filesystem events instead of repeatedly scanning directories.
-
-The watcher maintains active rules and monitors their configured directories.
-
-```text
-AppState
-   │
-   └── watchers
-        │
-        ├── Rule A → Downloads
-        ├── Rule B → Desktop
-        └── Rule C → Incoming
-```
-
-When an event occurs:
-
-```text
-Create / Modify
-      ↓
-notify callback
-      ↓
-inspect affected path
-      ↓
-extension matching
-      ↓
-move_matching_file()
-      ↓
-activity logging
-```
-
-Watchers are non-recursive, meaning Advanced Sorting currently operates on files directly inside the configured watch folder rather than recursively processing nested directories.
-
----
-
-# 💾 Local Persistence
-
-FileForge intentionally uses lightweight local persistence rather than requiring a database server.
-
-### Rules
-
-Stored under:
-
-```text
-%APPDATA%\FileForge\rules.json
-```
-
-Example conceptual structure:
-
-```json
-[
-  {
-    "id": "rule-id",
-    "rule_name": "Move PDFs",
-    "watch_folder": "D:\\Downloads",
-    "extensions": [".pdf"],
-    "destination": "D:\\Documents\\PDFs",
-    "enabled": true
-  }
-]
-```
-
-This makes rules:
-
-* Persistent
-* Human-readable
-* Easy to back up
-* Independent of an external database
-
----
-
-# 🧠 Design Principles
-
-FileForge is built around several principles.
-
-### 1. Native-first
-
-Filesystem operations belong in Rust rather than the frontend.
-
-### 2. User-controlled automation
-
-Users explicitly define:
-
-```text
-What to watch
-What files to match
-Where to move them
-Whether automation is enabled
-```
-
-### 3. Recoverability
-
-Quick Sorting maintains movement history so users can undo the latest operation.
-
-### 4. Local operation
-
-File organization happens locally on the user's machine.
-
-### 5. Event-driven automation
-
-Advanced Sorting uses filesystem events instead of unnecessary continuous polling.
-
-### 6. Minimal infrastructure
-
-No:
-
-* Backend server
-* Cloud database
-* External API
-* Authentication service
-* Subscription infrastructure
-
-is required for core functionality.
-
----
-
-# 🛠 Technology Stack
-
-| Layer             | Technology                     |
-| ----------------- | ------------------------------ |
-| Desktop Framework | Tauri 2                        |
-| Frontend          | React 19                       |
-| Build Tool        | Vite 8                         |
-| Styling           | Tailwind CSS 4                 |
-| Icons             | Fluent UI React Icons / Lucide |
-| Native Backend    | Rust                           |
-| Filesystem Events | `notify`                       |
-| Serialization     | Serde / serde_json             |
-| IPC               | Tauri Commands                 |
-| Persistence       | Local JSON                     |
-| Package Manager   | npm                            |
-| Native Build      | Cargo                          |
-| Target Platform   | Windows                        |
-
----
-
-# 📋 Requirements
+## Requirements
 
 For development, install:
 
-* Windows 10/11
-* Node.js
-* npm
-* Rust
-* Cargo
-* Tauri development prerequisites
+- Windows 10 or Windows 11
+- Node.js
+- npm
+- Rust
+- Cargo
+- Tauri development prerequisites
 
-Verify your installation:
+Verify the required tools:
 
 ```powershell
 node --version
@@ -635,63 +284,44 @@ cargo --version
 
 ---
 
-# 🚀 Installation
+## Installation
 
-## 1. Clone the repository
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/imInderjeetGil/FileForge-Ultimate-File-Sorter.git
-```
-
-Enter the project:
-
-```bash
 cd FileForge-Ultimate-File-Sorter
 ```
 
----
-
-## 2. Install frontend dependencies
+### 2. Install dependencies
 
 ```bash
 npm install
 ```
 
----
-
-## 3. Install Tauri prerequisites
-
-Follow the official Tauri setup documentation for your operating system and ensure the Rust toolchain and required native dependencies are available.
-
----
-
-# ▶️ Development
-
-Start the Tauri development environment:
+### 3. Start the desktop application
 
 ```bash
-npm run tauri dev
+npm run tauri -- dev
 ```
 
-This starts:
-
-```text
-Vite development server
-        +
-Tauri native application
-```
-
-The frontend can also be developed independently with:
-
-```bash
-npm run dev
-```
-
-However, native filesystem functionality requires the Tauri runtime.
+This launches the Vite development server and opens FileForge as a native Tauri application.
 
 ---
 
-# 🏭 Production Build
+## Available Scripts
+
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Start the Vite development server |
+| `npm run build` | Build the frontend application |
+| `npm run preview` | Preview the production frontend build |
+| `npm run tauri -- dev` | Run FileForge in development mode |
+| `npm run tauri -- build` | Build the native desktop application |
+
+---
+
+## Building for Production
 
 Build the frontend:
 
@@ -699,90 +329,154 @@ Build the frontend:
 npm run build
 ```
 
-Build the complete desktop application:
+Build the complete native application:
 
 ```bash
-npm run tauri build
+npm run tauri -- build
 ```
 
-Tauri will compile the Rust backend and package the application according to the configured bundle targets.
+The Tauri build process compiles the Rust backend and generates native application bundles using the configured targets.
+
+Build artifacts are generated inside the Tauri build output directory.
 
 ---
 
-# 📦 Installing a Release
-
-For normal users, use the installer generated by the Tauri build/release process rather than running the development environment.
-
-The packaged application provides a native Windows desktop experience without requiring Node.js or Rust on the target machine.
-
----
-
-# 🎯 Use Cases
-
-## 1. Downloads Folder Management
-
-A common Downloads folder might contain:
+## Project Structure
 
 ```text
-Downloads/
-├── image.png
-├── resume.pdf
-├── movie.mp4
-├── song.mp3
-├── project.zip
-├── setup.exe
-└── random.txt
+FileForge-Ultimate-File-Sorter/
+├── public/
+├── src/
+│   ├── components/
+│   ├── pages/
+│   ├── services/
+│   ├── assets/
+│   ├── App.jsx
+│   ├── App.css
+│   └── main.jsx
+├── src-tauri/
+│   ├── src/
+│   │   ├── commands/
+│   │   ├── models/
+│   │   ├── services/
+│   │   ├── lib.rs
+│   │   └── main.rs
+│   ├── Cargo.toml
+│   └── tauri.conf.json
+├── package.json
+├── package-lock.json
+├── vite.config.js
+└── README.md
 ```
 
-Quick Sorting transforms this into:
+### Frontend Responsibilities
 
-```text
-Downloads/
-├── Documents/
-│   └── resume.pdf
-│
-├── Images/
-│   └── image.png
-│
-├── Videos/
-│   └── movie.mp4
-│
-├── Music/
-│   └── song.mp3
-│
-├── Archives/
-│   └── project.zip
-│
-├── Installers/
-│   └── setup.exe
-│
-└── Miscellaneous/
-    └── random.txt
-```
+The React frontend handles:
+
+- User interface rendering
+- Navigation
+- Folder selection
+- Sorting configuration
+- Rule creation and editing
+- Activity display
+- User feedback
+
+### Rust Backend Responsibilities
+
+The Rust backend handles:
+
+- Folder scanning
+- File classification
+- File movement
+- Undo history
+- Rule persistence
+- Filesystem monitoring
+- Activity logging
+- Native application behavior
+- System tray integration
 
 ---
 
-## 2. Developer Workspace
+## Local Persistence
 
-Automatically move programming files:
+FileForge stores rules locally in JSON format.
+
+Default Windows location:
 
 ```text
-Downloads
-   │
-   ├── .java
-   ├── .jar
-   ├── .class
-   └── .sql
-          │
-          ▼
-     Development/
+%APPDATA%\FileForge\rules.json
 ```
+
+Example rule structure:
+
+```json
+[
+  {
+    "id": "rule-id",
+    "rule_name": "Move PDF files",
+    "watch_folder": "C:\\Users\\YourName\\Downloads",
+    "extensions": [".pdf"],
+    "destination": "C:\\Users\\YourName\\Documents\\PDFs",
+    "enabled": true
+  }
+]
+```
+
+Local persistence makes the configuration:
+
+- Lightweight
+- Human-readable
+- Easy to back up
+- Independent of external services
 
 ---
 
-## 3. Design Assets
+## Example Use Cases
 
-Create a rule for:
+### Downloads Folder Organization
+
+Automatically organize a Downloads folder containing:
+
+```text
+resume.pdf
+image.png
+movie.mp4
+song.mp3
+project.zip
+installer.exe
+```
+
+Into:
+
+```text
+Documents/
+Images/
+Videos/
+Music/
+Archives/
+Installers/
+```
+
+### Developer Workspace
+
+Create a rule for development files:
+
+```text
+.java
+.jar
+.class
+.sql
+```
+
+Move them automatically into:
+
+```text
+Development/
+```
+
+### Design Assets
+
+Automatically move image assets such as:
 
 ```text
 .png
@@ -792,17 +486,15 @@ Create a rule for:
 .webp
 ```
 
-and automatically move incoming assets into:
+Into:
 
 ```text
 Design Assets/
 ```
 
----
+### Academic Documents
 
-## 4. Academic Workflow
-
-Automatically separate:
+Organize:
 
 ```text
 .pdf
@@ -811,267 +503,126 @@ Automatically separate:
 .xlsx
 ```
 
-from a general Downloads directory into:
-
-```text
-College/
-├── Documents/
-├── Presentations/
-└── Spreadsheets/
-```
+Into an academic documents folder.
 
 ---
 
-## 5. Automated Incoming Folder
+## Safety Considerations
 
-Use Advanced Sorting as an automated inbox.
+FileForge moves files on the local filesystem. Use the following precautions:
 
-```text
-Incoming/
-    │
-    ├── PDF ────────► Documents/
-    ├── JPG ────────► Images/
-    ├── ZIP ────────► Archives/
-    └── EXE ────────► Installers/
-```
+- Test new rules with a temporary directory.
+- Avoid monitoring system folders.
+- Avoid application installation directories.
+- Review source and destination folders carefully.
+- Avoid overlapping rules unless intentional.
+- Keep backups of important files.
 
-Once configured, the user does not need to manually move every file.
+Windows Controlled Folder Access or other security settings may prevent FileForge from modifying protected directories.
 
 ---
 
-# 🧑‍💻 Example Workflow
+## Current Limitations
 
-### Quick Sorting
-
-```text
-1. Open FileForge
-2. Go to Quick Sorting
-3. Select a folder
-4. Review file count
-5. Click "Quick Sort"
-6. Review category statistics
-7. Use "Undo" if necessary
-```
+- Advanced Sorting currently monitors folders non-recursively.
+- File classification is extension-based.
+- Rules are stored locally in JSON.
+- Quick Sorting uses predefined categories.
+- Advanced rules process files directly inside the configured folder.
+- Windows permissions may affect file movement.
+- The application is currently focused on Windows.
 
 ---
 
-### Advanced Sorting
+## Roadmap
 
-```text
-1. Open Advanced Sorting
-2. Click "+ New Rule"
-3. Enter a rule name
-4. Select Watch Folder
-5. Select file extensions
-6. Select Destination
-7. Enable Background Running
-8. Save the rule
-```
+Potential future improvements include:
 
-FileForge then handles matching files automatically.
-
----
-
-# 🔐 Security & Safety
-
-FileForge performs local filesystem operations, so users should understand that sorting rules can move files.
-
-Recommended practice:
-
-> Start with a test folder before creating automation rules for important directories.
-
-Avoid configuring rules that could unintentionally move:
-
-* System files
-* Application directories
-* Important project structures
-* Files required by running applications
-
-Advanced Sorting should primarily be used with user-controlled directories such as:
-
-```text
-Downloads
-Desktop
-Documents
-Pictures
-Incoming
-```
+- Recursive folder monitoring
+- Date-based file organization
+- Duplicate file detection
+- Content-aware classification
+- AI-assisted organization
+- Scheduled sorting
+- Rule priorities
+- Multiple conditions per rule
+- Sorting previews
+- Configuration import and export
+- Batch renaming
+- Archive extraction
+- Improved activity analytics
+- macOS and Linux support
 
 ---
 
-# ⚠️ Current Limitations
+## Contributing
 
-FileForge is actively evolving.
+Contributions, bug reports, and feature requests are welcome.
 
-Current architectural limitations include:
+### Development Workflow
 
-* Advanced Sorting watches directories non-recursively.
-* Rules are stored locally in JSON.
-* Quick Sorting uses predefined file categories.
-* File organization is extension-based rather than content-aware.
-* Advanced rules currently target files directly inside the watched folder.
-* Windows permissions such as Controlled Folder Access may affect filesystem operations.
+1. Fork the repository.
+2. Create a feature branch:
 
-These constraints are intentional parts of the current implementation and provide a foundation for future capabilities.
+   ```bash
+   git checkout -b feature/your-feature
+   ```
 
----
+3. Install dependencies:
 
-# 🗺️ Roadmap
+   ```bash
+   npm install
+   ```
 
-Potential future development includes:
+4. Make your changes.
+5. Build the frontend:
 
-### File Intelligence
+   ```bash
+   npm run build
+   ```
 
-* [ ] Content-aware file classification
-* [ ] AI-assisted organization
-* [ ] Smart filename generation
-* [ ] Duplicate detection
-* [ ] Similar-file detection
-* [ ] Date-based organization
+6. Test the desktop application:
 
-### Automation
+   ```bash
+   npm run tauri -- dev
+   ```
 
-* [ ] Recursive folder monitoring
-* [ ] More advanced conditional rules
-* [ ] Rule priorities
-* [ ] Multiple conditions per rule
-* [ ] Scheduled sorting
-* [ ] Custom actions
+7. Commit your changes:
 
-### File Operations
+   ```bash
+   git add .
+   git commit -m "feat: describe your change"
+   ```
 
-* [ ] Archive extraction
-* [ ] Batch renaming
-* [ ] Empty-folder cleanup
-* [ ] Temporary-file cleanup
-* [ ] Duplicate cleanup
-* [ ] File metadata inspection
+8. Push your branch and open a pull request.
 
-### User Experience
-
-* [ ] Drag-and-drop rules
-* [ ] Import/export configurations
-* [ ] Improved activity analytics
-* [ ] Sorting previews
-* [ ] Better notifications
-* [ ] More customization
-
-### Platform
-
-* [ ] Improved Windows integration
-* [ ] macOS support
-* [ ] Linux support
+Please keep frontend UI logic separate from native filesystem functionality.
 
 ---
 
-# 🤝 Contributing
+## License
 
-Contributions are welcome.
+No license has currently been specified for this repository.
 
-### Fork the repository
-
-```bash
-git fork
-```
-
-Or use GitHub's **Fork** button.
-
-### Create a branch
-
-```bash
-git checkout -b feature/my-feature
-```
-
-### Make your changes
-
-Follow the existing project structure and keep frontend and native functionality separated.
-
-### Test locally
-
-```bash
-npm run build
-npm run tauri dev
-```
-
-### Commit
-
-```bash
-git add .
-git commit -m "feat: add my feature"
-```
-
-### Push
-
-```bash
-git push origin feature/my-feature
-```
-
-Then open a Pull Request.
+Until a license is added, the project should be considered **all rights reserved**. Please contact the repository owner before redistributing or using the source code in another project.
 
 ---
 
-# 🐛 Reporting Issues
+## Acknowledgements
 
-When opening an issue, include:
+FileForge is built with:
 
-* Windows version
-* FileForge version
-* Steps to reproduce
-* Expected behavior
-* Actual behavior
-* Relevant error messages
-* Screenshots where applicable
-
-For filesystem-related issues, also mention:
-
-* Watch folder
-* Destination folder
-* File extension involved
-* Whether the rule was enabled
-* Whether Windows security restrictions were involved
+- [Tauri](https://tauri.app/)
+- [React](https://react.dev/)
+- [Vite](https://vite.dev/)
+- [Rust](https://www.rust-lang.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [notify](https://github.com/notify-rs/notify)
+- [Lucide](https://lucide.dev/)
+- [Fluent UI System Icons](https://github.com/microsoft/fluentui-system-icons/)
 
 ---
 
-# 📜 License
+## Repository
 
-This project is currently distributed through the repository under the license specified in the project files.
-
-See:
-
-```text
-LICENSE
-```
-
-for the applicable terms.
-
----
-
-# 👨‍💻 Author
-
-**Inderjeet Singh**
-
-Computer Science & Engineering
-
-GitHub:
-
-https://github.com/imInderjeetGil
-
----
-
-# ⭐ Support the Project
-
-If FileForge is useful to you:
-
-* ⭐ Star the repository
-* 🐛 Report bugs
-* 💡 Suggest features
-* 🔧 Contribute improvements
-* 📢 Share the project
-
----
-
-## FileForge
-
-**Organize once. Automate forever.**
-
-A lightweight native file-management tool designed to turn messy folders into predictable workflows.
+[github.com/imInderjeetGil/FileForge-Ultimate-File-Sorter](https://github.com/imInderjeetGil/FileForge-Ultimate-File-Sorter)
